@@ -13,7 +13,7 @@ blue_circles_classifier = cv.CascadeClassifier("D:/tecdemty/6to Semestre/robotic
 black_circles_classifier = cv.CascadeClassifier("D:/tecdemty/6to Semestre/robotica inteligente/signsDetectionModel2/blackCircles/classifier/cascade.xml")
 
 cnn_model = load_model('traffic_signs_cnn_model_5/my_model')
-cnn_probability_threshold = 0.85
+cnn_probability_threshold = 0.90
 
 def preprocessing(img):
     img = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
@@ -76,7 +76,10 @@ def getCalssName(classNo):
 
 while True:
 	_, originalFrame = cap.read()
-	frame = cv.resize(originalFrame,(400,240), interpolation = cv.INTER_AREA)
+	(originalWidth, originalHeight, _) = originalFrame.shape
+	newWidth = int((7/10)*(originalWidth))
+	newHeight = int((7/10)*(originalHeight))
+	frame = cv.resize(originalFrame,(newHeight,newWidth), interpolation = cv.INTER_AREA)
 	haarDetection = frame.copy()
 	frameCopy = frame.copy()	
 	HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)     
@@ -87,14 +90,15 @@ while True:
 	
 	blue = cv.inRange(HSV,(85,70,50),(140,255,255))	
 
+	#black = cv.inRange(HSV,(0,0,0),(255,255,100))
 	black = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 	_,black = cv.threshold(black, 128, 255, cv.THRESH_BINARY_INV)    
 	black = cv.dilate(black, kernel, iterations=1)
 
 	# TODO: ADD BLACK CIRCLES 	
 		
-	redHexagons = red_hexagons_classifier.detectMultiScale(red, scaleFactor=1.1, minNeighbors=150, minSize=(40,40))
-	blueCircles = blue_circles_classifier.detectMultiScale(blue, scaleFactor=1.1, minNeighbors=250, minSize=(40,40))
+	redHexagons = red_hexagons_classifier.detectMultiScale(red, scaleFactor=1.1, minNeighbors=350, minSize=(40,40))
+	blueCircles = blue_circles_classifier.detectMultiScale(blue, scaleFactor=1.1, minNeighbors=700, minSize=(40,40))
 	blackCircles = black_circles_classifier.detectMultiScale(black, scaleFactor=1.1, minNeighbors=300, minSize=(40,40))
 	
 	for (x,y,w,h) in redHexagons:
